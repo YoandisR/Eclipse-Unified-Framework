@@ -1,0 +1,965 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eclipse Unified Framework ECLIPSE_UNIFIED_v13.2_PRO (Professional Edition)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff00;
+            --secondary-color: #00cc00;
+            --accent-color: #ff6600;
+            --background-color: #0a0a0a;
+            --card-background: #111111;
+            --text-color: #ffffff;
+            --terminal-bg: rgba(0, 0, 0, 0.85);
+            --glow-intensity: 0.8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 255, 0, 0.05) 2px, transparent 0),
+                radial-gradient(circle at 75% 75%, rgba(0, 255, 0, 0.05) 1px, transparent 0);
+            background-size: 30px 30px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .cyberpunk-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+        
+        .cyberpunk-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .loader-progress {
+            width: 300px;
+            height: 5px;
+            background-color: #222;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loader-progress-bar {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            animation: progressLoad 3s ease-in-out forwards;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyberpunk-border {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        .cyberpunk-border::before, .cyberpunk-border::after {
+            content: '';
+            position: absolute;
+            background-color: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+        
+        .cyberpunk-border::before {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            animation: borderGlow 3s infinite alternate;
+        }
+        
+        .cyberpunk-border::after {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            animation: borderGlow 3s infinite alternate-reverse;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            animation: logoUnderline 3s infinite;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: black;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transform: translateY(-15px);
+            animation: badgePulse 2s infinite;
+        }
+        
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .terminal {
+            background-color: var(--terminal-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.25);
+            position: relative;
+            transform: translateZ(0);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .terminal:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(0, 255, 0, 0.4);
+        }
+        
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+        
+        .terminal-title {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .terminal-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .terminal-action-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .terminal-action-btn.close { background-color: #ff5f56; }
+        .terminal-action-btn.minimize { background-color: #ffbd2e; }
+        .terminal-action-btn.maximize { background-color: #27c93f; }
+        
+        .terminal-content {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+            line-height: 1.5;
+            font-size: 1.05rem;
+        }
+        
+        .command {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .comment {
+            color: #888;
+            font-style: italic;
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .card:hover::before {
+            left: 100%;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 255, 0, 0.25);
+        }
+        
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--secondary-color);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px dotted var(--secondary-color);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li:hover {
+            background-color: rgba(0, 255, 0, 0.05);
+            padding-left: 15px;
+        }
+        
+        .feature-list li:before {
+            content: ">> ";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 12px 24px;
+            margin: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            font-weight: bold;
+            gap: 8px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.7s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            border-top: 1px solid var(--primary-color);
+            color: var(--secondary-color);
+            position: relative;
+        }
+        
+        .typewriter-container {
+            width: 100%;
+            text-align: center;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+        
+        .typewriter {
+            display: inline-block;
+            overflow: visible;
+            border-right: 0.15em solid var(--primary-color);
+            white-space: normal;
+            word-wrap: break-word;
+            letter-spacing: 0.1em;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            max-width: 100%;
+            font-weight: 500;
+        }
+        
+        .module {
+            background-color: rgba(0, 30, 0, 0.2);
+            border-left: 3px solid var(--primary-color);
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s;
+            border-radius: 0 8px 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .module:hover {
+            background-color: rgba(0, 50, 0, 0.3);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+        }
+        
+        .module:hover::after {
+            opacity: 1;
+        }
+        
+        .module-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        
+        .cyberpunk-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatParticle 15s infinite linear;
+        }
+        
+        .ui-command-section {
+            background: rgba(0, 30, 0, 0.3);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .ui-command-title {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .ui-command-code {
+            background: var(--terminal-bg);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+            margin: 15px 0;
+            display: inline-block;
+            border: 1px solid var(--primary-color);
+        }
+        
+        /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 30px rgba(0, 255, 0, 0.6);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(0, 255, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+            }
+        }
+        
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            20% { width: 20%; }
+            50% { width: 50%; }
+            80% { width: 80%; }
+            100% { width: 100%; }
+        }
+        
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 5px var(--primary-color); }
+            100% { box-shadow: 0 0 20px var(--primary-color); }
+        }
+        
+        @keyframes logoUnderline {
+            0% { transform: scaleX(0); opacity: 0; }
+            50% { transform: scaleX(1); opacity: 1; }
+            100% { transform: scaleX(0); opacity: 0; }
+        }
+        
+        @keyframes badgePulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 102, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0); }
+        }
+        
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo {
+                font-size: 2.2rem;
+            }
+            
+            .typewriter {
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 20px 0;
+            }
+            
+            .terminal-content {
+                font-size: 1rem;
+            }
+            
+            .card-title {
+                font-size: 1.3rem;
+            }
+            
+            .module-title {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .typewriter {
+                font-size: 1rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .terminal-content {
+                font-size: 0.9rem;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyberpunk-loader" id="loader">
+        <div class="loader-logo">ECLIPSE FRAMEWORK</div>
+        <div class="loader-progress">
+            <div class="loader-progress-bar"></div>
+        </div>
+    </div>
+    
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    <div class="cyberpunk-grid"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container" id="main-content">
+        <header>
+            <div class="cyberpunk-border"></div>
+            <div class="logo">
+                <span class="status-indicator"></span>ECLIPSE UNIFIED FRAMEWORK
+                <span class="version-badge">v13.2 PRO</span>
+            </div>
+            <div class="subtitle">Herramienta profesional de gestión para dispositivos Android</div>
+            <div class="typewriter-container">
+                <div class="typewriter" id="typewriter-text"></div>
+            </div>
+        </header>
+        
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-title">terminal@eclipse:~</div>
+                <div class="terminal-actions">
+                    <div class="terminal-action-btn close"></div>
+                    <div class="terminal-action-btn minimize"></div>
+                    <div class="terminal-action-btn maximize"></div>
+                </div>
+            </div>
+            <div class="terminal-content">
+                <p><span class="comment"># Instalación automática en Termux</span></p>
+                <p><span class="command">pkg install git python -y</span></p>
+                <p><span class="command">git clone https://github.com/YoandisR/Eclipse-Unified-Framework.git</span></p>
+                <p><span class="command">cd Eclipse-Unified-Framework</span></p>
+                <p><span class="command">chmod +x eclipse.py</span></p>
+                <p><span class="command">python3 eclipse.py --help</span></p>
+                <p><span class="comment"># Las dependencias se instalarán automáticamente</span></p>
+            </div>
+        </div>
+        
+        <!-- Nueva sección para el comando UI -->
+        <div class="ui-command-section">
+            <div class="ui-command-title">
+                <i class="fas fa-desktop"></i> Nueva Función: Comando UI
+            </div>
+            <p>Ahora puedes abrir esta interfaz gráfica directamente desde el framework con el comando:</p>
+            <div class="ui-command-code">python3 eclipse.py ui</div>
+            <p>Este comando abrirá automáticamente esta guía visual en tu navegador predeterminado.</p>
+            <a href="#" class="btn" id="simulate-ui-command">
+                <i class="fas fa-terminal"></i> Simular Comando UI
+            </a>
+        </div>
+        
+        <div class="card">
+            <div class="card-title"><i class="fas fa-rocket"></i> Características Principales</div>
+            <ul class="feature-list">
+                <li>Gestión Avanzada de Aplicaciones del Sistema</li>
+                <li>Análisis de Sistema en Tiempo Real</li>
+                <li>Captura de Pantalla con Opciones Avanzadas</li>
+                <li>Control Completo del Dispositivo</li>
+                <li>Gestión Inteligente de Caché del Sistema</li>
+                <li>Historial de Comandos con Búsqueda Avanzada</li>
+                <li>Interfaz Estilizada Tipo "Hacker"</li>
+                <li>Soporte Nativo para Root y Shizuku</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <div class="card-title"><i class="fas fa-cubes"></i> Módulos Integrados</div>
+            <div class="grid">
+                <div class="module">
+                    <div class="module-title"><i class="fas fa-mobile-alt"></i> Gestión de Aplicaciones</div>
+                    <p>Comandos: <code>appmanager</code>, <code>pm</code><br>
+                    Instalación, desinstalación y gestión completa de aplicaciones del sistema</p>
+                </div>
+                <div class="module">
+                    <div class="module-title"><i class="fas fa-microchip"></i> Sistema y Dispositivo</div>
+                    <p>Comandos: <code>sysinfo</code>, <code>device</code>, <code>process</code><br>
+                    Información detallada del sistema y control avanzado del dispositivo</p>
+                </div>
+                <div class="module">
+                    <div class="module-title"><i class="fas fa-tools"></i> Utilidades Avanzadas</div>
+                    <p>Comandos: <code>screenshot</code>, <code>cache</code>, <code>history</code><br>
+                    Herramientas esenciales para administración profesional</p>
+                </div>
+                <div class="module">
+                    <div class="module-title"><i class="fas fa-play-circle"></i> Lanzamiento de Apps</div>
+                    <p>Comando: <code>open</code><br>
+                    Lanza aplicaciones predefinidas o personalizadas con parámetros</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title"><i class="fas fa-terminal"></i> Comandos de Ejemplo</div>
+            <div class="terminal">
+                <div class="terminal-content">
+                    <p><span class="command">python3 eclipse.py run sysinfo</span> <span class="comment"># Información completa del sistema</span></p>
+                    <p><span class="command">python3 eclipse.py run screenshot --delay 3</span> <span class="comment"># Captura con retardo</span></p>
+                    <p><span class="command">python3 eclipse.py run process --sort cpu --limit 10</span> <span class="comment"># Top 10 procesos por CPU</span></p>
+                    <p><span class="command">python3 eclipse.py run cache clear-all</span> <span class="comment"># Limpieza total de caché</span></p>
+                    <p><span class="command">python3 eclipse.py interactive</span> <span class="comment"># Modo interactivo avanzado</span></p>
+                    <p><span class="command">python3 eclipse.py run open --app whatsapp</span> <span class="comment"># Abrir WhatsApp</span></p>
+                    <p><span class="command">python3 eclipse.py ui</span> <span class="comment"># Abrir interfaz gráfica (NUEVO)</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title"><i class="fas fa-server"></i> Requisitos del Sistema</div>
+            <ul class="feature-list">
+                <li>Android 7.0 o superior (API 24+)</li>
+                <li>Termux instalado y configurado</li>
+                <li>Acceso Root o Shizuku (para funciones avanzadas)</li>
+                <li>Python 3.7+ (incluido automáticamente en Termux)</li>
+                <li>Dependencias: click, psutil, requests, colorama (auto-instalación)</li>
+                <li>Espacio libre: mínimo 50MB para instalación completa</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="#" class="btn"><i class="fas fa-book"></i> Documentación Completa</a>
+            <a href="#" class="btn"><i class="fas fa-download"></i> Descargar Framework</a>
+            <a href="https://github.com/YoandisR" class="btn"><i class="fab fa-github"></i> Ver Código Fuente</a>
+        </div>
+        
+        <footer>
+            <p><strong>ECLIPSE UNIFIED FRAMEWORK</strong> - La herramienta definitiva para la gestión avanzada de dispositivos Android desde Termux</p>
+            <p>Desarrollado por <strong>Yoandis Rodríguez</strong> | 
+               GitHub: <a href="https://github.com/YoandisR" style="color: var(--primary-color); text-decoration: none;">YoandisR</a> | 
+               Email: <a href="mailto:curvadigital0@gmail.com" style="color: var(--primary-color); text-decoration: none;">curvadigital0@gmail.com</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
+                © 2024 Eclipse Framework. Todos los derechos reservados.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Matrix background effect
+        function initMatrix() {
+            const canvas = document.getElementById('matrix');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const matrix = "ECLIPSE0123456789ABCDEF";
+            const matrixArray = matrix.split("");
+            
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.floor(Math.random() * canvas.height / fontSize);
+            }
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 35);
+        }
+        
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Typewriter effect function
+        function typeWriter() {
+            const typewriterElement = document.getElementById('typewriter-text');
+            const text = "Herramienta profesional de gestión para dispositivos Android";
+            let i = 0;
+            
+            typewriterElement.textContent = '';
+            
+            function type() {
+                if (i < text.length) {
+                    typewriterElement.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 80);
+                } else {
+                    setInterval(() => {
+                        typewriterElement.style.borderRightColor = 
+                            typewriterElement.style.borderRightColor === 'transparent' ? 
+                            'var(--primary-color)' : 'transparent';
+                    }, 750);
+                }
+            }
+            
+            type();
+        }
+        
+        // Simulate UI command execution
+        function simulateUICommand() {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = 'rgba(0, 80, 0, 0.8)';
+            notification.style.color = 'var(--primary-color)';
+            notification.style.padding = '15px';
+            notification.style.borderRadius = '5px';
+            notification.style.border = '1px solid var(--primary-color)';
+            notification.style.zIndex = '1000';
+            notification.innerHTML = '<p><i class="fas fa-check-circle"></i> Interfaz gráfica abierta</p>';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+        
+        // Initialize effects when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('main-content').classList.add('visible');
+                
+                initMatrix();
+                createParticles();
+                typeWriter();
+                
+                document.getElementById('simulate-ui-command').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    simulateUICommand();
+                });
+                
+                const commands = document.querySelectorAll('.command');
+                commands.forEach((cmd, index) => {
+                    const text = cmd.textContent;
+                    cmd.textContent = '';
+                    setTimeout(() => {
+                        let i = 0;
+                        const typeEffect = setInterval(() => {
+                            if (i < text.length) {
+                                cmd.textContent += text.charAt(i);
+                                i++;
+                            } else {
+                                clearInterval(typeEffect);
+                            }
+                        }, 30);
+                    }, index * 300);
+                });
+            }, 3500);
+            
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        window.addEventListener('resize', function() {
+            const canvas = document.getElementById('matrix');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
